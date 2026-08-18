@@ -210,7 +210,7 @@ def home():
                  winner = away_team
                 loser = home_team
 
-             prediction = f"{winner} Wins"
+            prediction = f"{winner} Wins"
 
     return render_template(
      "index.html",
