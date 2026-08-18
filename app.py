@@ -154,10 +154,13 @@ def home():
         set(df["Away Teams"].dropna())
     )
 
+    
     prediction = None
     probability = None
     home_team = None
     away_team = None
+    winner = None
+    loser = None
 
     if request.method == "POST":
 
