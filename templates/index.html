@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Football Match Predictor</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6f9;
+            color: #222;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            margin: 50px auto;
+        }
+
+        /* Header */
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+            font-size: 36px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Main Card */
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Teams */
+
+        .teams {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .team {
+            flex: 1;
+        }
+
+        .team label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3157a4;
+        }
+
+        .vs {
+            font-weight: bold;
+            color: #777;
+            padding-top: 25px;
+        }
+
+        /* Button */
+
+        .predict-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #3157a4;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .predict-btn:hover {
+            background: #254787;
+        }
+
+        .predict-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        /* Result */
+
+        .result {
+            margin-top: 25px;
+            padding: 25px;
+            text-align: center;
+            border-radius: 10px;
+            background: #eef3ff;
+            border: 1px solid #d4def5;
+        }
+
+        .result-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .winner {
+            font-size: 28px;
+            color: #3157a4;
+            margin: 5px 0;
+        }
+
+        .loser {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .confidence {
+            margin-top: 12px;
+            color: #555;
+        }
+
+        /* Model Information */
+
+        .info {
+            margin-top: 25px;
+            padding: 18px;
+            background: #fafafa;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .info h3 {
+            margin-top: 0;
+        }
+
+        .info p {
+            margin: 7px 0;
+            color: #555;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 600px) {
+
+            .container {
+                margin: 25px auto;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .teams {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .team {
+                width: 100%;
+            }
+
+            .vs {
+                padding: 0;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+
+    <div class="header">
+
+        <h1>⚽ Football Match Predictor</h1>
+
+        <p>
+            Predict the winner using historical team performance.
+        </p>
+
+    </div>
+
+
+    <!-- Main Card -->
+
+    <div class="card">
+
+        <form method="POST" id="predictionForm">
+
+            <div class="teams">
+
+                <!-- Home Team -->
+
+                <div class="team">
+
+                    <label for="home_team">
+                        Home Team
+                    </label>
+
+                    <select
+                        name="home_team"
+                        id="home_team"
+                        required
+                    >
+
+                        <option value="">
+                            Select Home Team
+                        </option>
+
+                        {% for team in teams %}
+
+                        <option
+                            value="{{ team }}"
+                            {% if home_team == team %}selected{% endif %}
+                        >
+
+                            {{ team }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- VS -->
+
+                <div class="vs">
+                    VS
+                </div>
+
+
+                <!-- Away Team -->
+
+                <div class="team">
+
+                    <label for="away_team">
+                        Away Team
+                    </label>
+
+                    <select
+                        name="away_team"
+                        id="away_team"
+                        required
+                    >
+
+                        <option value="">
+                            Select Away Team
+                        </option>
+
+                        {% for team in teams %}
+
+                        <option
+                            value="{{ team }}"
+                            {% if away_team == team %}selected{% endif %}
+                        >
+
+                            {{ team }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- Predict Button -->
+
+            <button
+                type="submit"
+                class="predict-btn"
+                id="predictButton"
+            >
+
+                ⚡ Predict Match
+
+            </button>
+
+        </form>
+
+
+        <!-- Prediction Result -->
+
+        {% if winner %}
+
+        <div class="result">
+
+            <div class="result-title">
+                🏆 Predicted Winner
+            </div>
+
+            <h2 class="winner">
+                {{ winner }}
+            </h2>
+
+            <div class="loser">
+                vs {{ loser }}
+            </div>
+
+            {% if probability %}
+
+            <div class="confidence">
+
+                Model confidence:
+                <strong>{{ probability }}%</strong>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- Model Information -->
+
+        <div class="info">
+
+            <h3>About the Model</h3>
+
+            <p>
+                <strong>Algorithm:</strong>
+                Logistic Regression
+            </p>
+
+            <p>
+                <strong>Features:</strong>
+                Recent Form, Head-to-Head,
+                Form Difference and Goal Difference
+            </p>
+
+            <p>
+                <strong>Test Accuracy:</strong>
+                56.59%
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- JavaScript -->
+
+<script>
+
+    const form = document.getElementById("predictionForm");
+    const button = document.getElementById("predictButton");
+
+    form.addEventListener("submit", function (event) {
+
+        const home = document.getElementById("home_team").value;
+        const away = document.getElementById("away_team").value;
+
+        if (home === away) {
+
+            alert("Please select two different teams.");
+
+            event.preventDefault();
+
+            return;
+        }
+
+        button.disabled = true;
+
+        button.innerHTML = "⚽ Analyzing Match...";
+
+    });
+
+</script>
+
+
+</body>
+
+  </html>
