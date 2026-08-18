@@ -201,20 +201,25 @@ def home():
             )
 
             if result == 1:
-                prediction = f"{home_team} Wins"
+                winner = home_team
+                loser = away_team
             else:
-                prediction = f"{home_team} Does Not Win"
+                 winner = away_team
+                loser = home_team
+
+             prediction = f"{winner} Wins"
 
     return render_template(
-        "index.html",
-        teams=teams,
-        prediction=prediction,
-        probability=probability,
-        home_team=home_team,
-        away_team=away_team
-    )
-
-
+     "index.html",
+     teams=teams,
+     prediction=prediction,
+     probability=probability,
+     winner=winner,
+     lose r=loser,
+     home_team=home_team,
+     away_team=away_team
+)
+        
 
 if __name__ == "__main__":
     app.run(
