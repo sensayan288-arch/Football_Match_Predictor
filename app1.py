@@ -11,7 +11,11 @@ app = Flask(__name__)
 
 df = pd.read_excel("UCL_Eleme_Turlar_Verisi.xlsx")
 
-df["Date"] = pd.to_datetime(df["Date"])
+df["Date"] = pd.to_datetime(
+    df["Date"].astype(str).str.strip(),
+    format="mixed",
+    dayfirst=True
+)
 
 df = df.sort_values("Date").reset_index(drop=True)
 
