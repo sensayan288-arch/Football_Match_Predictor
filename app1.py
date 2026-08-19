@@ -278,9 +278,7 @@ def home():
 
             prediction = f"{winner} Wins"
 
-    
-
-    return render_template(
+        return render_template(
         "index.html",
         teams=teams,
         prediction=prediction,
