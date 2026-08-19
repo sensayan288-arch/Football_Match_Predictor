@@ -9,7 +9,7 @@ app = Flask(__name__)
 # LOAD DATA
 # =========================
 
-df = pd.read_csv("football_data.csv")
+df = pd.read_excel("UCL_Eleme_Tular_Verisi.xlsx")
 
 df["Date"] = pd.to_datetime(df["Date"])
 
