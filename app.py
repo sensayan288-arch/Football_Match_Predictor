@@ -208,7 +208,7 @@ def home():
                 loser = away_team
             else:
                  winner = away_team
-                loser = home_team
+                 loser = home_team
 
             prediction = f"{winner} Wins"
 
