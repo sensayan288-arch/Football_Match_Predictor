@@ -5,9 +5,6 @@ import pickle
 app = Flask(__name__)
 
 
-# =========================
-# LOAD DATA
-# =========================
 
 df = pd.read_excel("UCL_Eleme_Turlar_Verisi.xlsx")
 
@@ -20,17 +17,12 @@ df["Date"] = pd.to_datetime(
 df = df.sort_values("Date").reset_index(drop=True)
 
 
-# =========================
-# LOAD MODEL
-# =========================
+
 
 with open("football_winner_model.pkl", "rb") as file:
     model = pickle.load(file)
 
 
-# =========================
-# RECENT MATCHES
-# =========================
 
 def get_recent_matches(team, current_date, n=10):
 
@@ -46,9 +38,6 @@ def get_recent_matches(team, current_date, n=10):
     return past_matches
 
 
-# =========================
-# RECENT FORM
-# =========================
 
 def get_recent_form(team, current_date, n=10):
 
@@ -68,9 +57,6 @@ def get_recent_form(team, current_date, n=10):
     return wins / len(past_matches)
 
 
-# =========================
-# GOAL DIFFERENCE
-# =========================
 
 def get_goal_difference(team, current_date, n=10):
 
@@ -106,9 +92,6 @@ def get_goal_difference(team, current_date, n=10):
     return sum(goal_diffs) / len(goal_diffs)
 
 
-# =========================
-# HEAD-TO-HEAD
-# =========================
 
 def get_head_to_head(
     home_team,
@@ -149,13 +132,12 @@ def calculate_features(
     away_team
 ):
 
-    # Use the latest available date
     current_date = (
         df["Date"].max()
         + pd.Timedelta(days=1)
     )
 
-    # Recent form
+    
     home_form = get_recent_form(
         home_team,
         current_date
@@ -166,19 +148,19 @@ def calculate_features(
         current_date
     )
 
-    # Head-to-head
+    
     h2h_home_win_rate = get_head_to_head(
         home_team,
         away_team,
         current_date
     )
 
-    # Form difference
+    
     form_difference = (
         home_form - away_form
     )
 
-    # Goal difference
+    
     home_goal_diff = get_goal_difference(
         home_team,
         current_date
@@ -199,10 +181,10 @@ def calculate_features(
     ]
 
 
+
 @app.route("/", methods=["GET", "POST"])
 def home():
 
-    # Get all teams
     teams = sorted(
         set(df["Home Teams"].dropna())
         |
@@ -211,37 +193,27 @@ def home():
 
     prediction = None
     probability = None
-
     home_team = None
     away_team = None
-
     winner = None
     loser = None
-
-    
 
     if request.method == "POST":
 
         home_team = request.form["home_team"]
-
         away_team = request.form["away_team"]
 
-        # Same team check
         if home_team == away_team:
 
-            prediction = (
-                "Please select two different teams."
-            )
+            prediction = "Please select two different teams."
 
         else:
 
-            # Calculate engineered features
             feature_values = calculate_features(
                 home_team,
                 away_team
             )
 
-            # Create DataFrame
             input_data = pd.DataFrame(
                 [feature_values],
                 columns=[
@@ -254,35 +226,26 @@ def home():
                 ]
             )
 
-            # Make prediction
-            result = model.predict(
-                input_data
-            )[0]
+            result = model.predict(input_data)[0]
 
-            # Get prediction probabilities
-            probabilities = model.predict_proba(
-                input_data
-            )[0]
+            probabilities = model.predict_proba(input_data)[0]
 
             probability = round(
                 max(probabilities) * 100,
                 2
             )
 
-            # Determine winner and loser
             if result == 1:
-
                 winner = home_team
                 loser = away_team
-
             else:
-
                 winner = away_team
                 loser = home_team
 
             prediction = f"{winner} Wins"
 
-        return render_template(
+    
+    return render_template(
         "index.html",
         teams=teams,
         prediction=prediction,
